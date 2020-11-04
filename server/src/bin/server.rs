@@ -1,4 +1,4 @@
-use ::server::web::bind2;
+use ::server::web::bind;
 use ::rpc::services as services;
 use tokio::prelude::*;
 use tarpc;
@@ -27,10 +27,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     info!("First Message");
 
-    let tmp = build_server()
+    let server = build_server()
     .await
     .expect("Failed to get server channel");
-    let tmp = tmp.map_ok(move |x| {
+    let stream = server.map_ok(move |x| {
         info!("Mapping the client session"); 
         let channel = tarpc::server::BaseChannel::with_defaults(x);
         let server = PingServiceImpl{}; 
@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     //TODO: Will likely need a way to kill the connection. Need to figure that out. 
-    let handle = tokio::spawn(tmp.for_each(|_| async {}));
+    let handle = tokio::spawn(stream.for_each(|_| async {}));
     handle.await;
     Ok(())
 }
@@ -49,7 +49,7 @@ async fn build_server<Item, SinkItem>() -> Option<impl Stream<Item = Result<impl
         Item: for<'de> Deserialize<'de> + Unpin,
         SinkItem: Serialize + Unpin,
 { 
-    Some(bind2(tokio_serde::formats::Json::<Item, SinkItem>::default).await.unwrap())
+    Some(bind(tokio_serde::formats::Json::<Item, SinkItem>::default).await.unwrap())
 
     //self.server_handles.push(handle);
 }
