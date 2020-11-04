@@ -8,7 +8,8 @@ edition = "2018"
 
 [dependencies]
 serde = { version = "1.0"}
-tarpc = {path="../../tarpc/tarpc", features=["full"]}
+# tarpc = {path="../../tarpc/tarpc", features=["full"]}
+tarpc = {git = "https://github.com/john-hern/tarpc.git", branch = "wasm_support", features=["tokio1", "wasm", "serde1"] }
 pin-project = "*"
 async-stream = "*"
 async-trait = "*"

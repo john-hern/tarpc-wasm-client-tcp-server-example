@@ -7,14 +7,14 @@ use futures_util::*;
 use log::info;
 use serde::{Deserialize, Serialize};
 use services::PingService;
-use std::pin::*;
+
 use tarpc;
-use tarpc::context::*;
-use tarpc::rpc::*;
+
+
 use tarpc::server::*;
-use tarpc::service;
-use tarpc::*;
-use tokio::prelude::*;
+
+
+
 use tokio::stream::*;
 
 #[tokio::main]
@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //TODO: Will likely need a way to kill the connection. Need to figure that out.
     let handle = tokio::spawn(stream.for_each(|_| async {}));
-    handle.await;
+    handle.await.unwrap();
     Ok(())
 }
 

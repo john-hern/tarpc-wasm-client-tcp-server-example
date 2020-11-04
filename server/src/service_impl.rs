@@ -1,6 +1,6 @@
 use log::info;
 use rpc::services::PingService;
-use tarpc::{context, server};
+use tarpc::{context};
 
 #[derive(Clone)]
 pub struct PingServiceImpl {}

@@ -4,23 +4,23 @@ use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tarpc::serde_transport::Transport;
-use tokio::net::{TcpListener, TcpStream};
+
 use tokio::stream::StreamExt;
 use tokio_serde::*;
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 //use tarpc::Transport;
 use async_tungstenite::tokio::accept_async;
-use bytes::{Bytes, BytesMut};
-use futures::ready;
-use futures_sink::Sink;
-use pin_project::*;
+
+
+
+
 use std::marker::Unpin;
-use std::pin::Pin;
-use std::task::{Context, Poll};
-use tokio::io::{AsyncRead, AsyncWrite};
-use tokio_tungstenite::*;
-use tungstenite::error::Error as WsError;
-use tungstenite::Message;
+
+
+
+
+
+
 use ws_stream_tungstenite::*;
 
 pub async fn bind<Item, SinkItem, Codec, CodecFn>(
@@ -65,14 +65,14 @@ where
                         .peer_addr()
                         .expect("connected streams should have a peer address");
                     info!("Peer address: {}", addr);
-                    let mut ws = accept_async(stream).await.unwrap();
-                    let mut ws_stream = WsStream::new(ws);
+                    let ws = accept_async(stream).await.unwrap();
+                    let ws_stream = WsStream::new(ws);
                     info!("New WebSocket connection: {}", addr);
                     let frame = Framed::new(ws_stream, LengthDelimitedCodec::new());
                     let tmp = tarpc::serde_transport::new(frame, codecFn());
                     yield Ok(tmp)
                 }
-                Err(e) => { /* connection failed */ }
+                Err(_e) => { /* connection failed */ }
             }
         }
     };

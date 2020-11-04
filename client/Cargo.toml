@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["John Hernandez <john.hern@outlook.com>"]
 edition = "2018"
 
+[build]
+target = "wasm32-unknown-unknown"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -11,7 +14,8 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 yew = {version = "0.17"}
 wasm-bindgen = "0.2.67"
-tarpc = {path="../../tarpc/tarpc", features=["tokio1", "wasm", "serde1"]}
+# tarpc = {path="../../tarpc/tarpc", features=["tokio1", "wasm", "serde1"]}
+tarpc = {git = "https://github.com/john-hern/tarpc.git", branch = "wasm_support", features=["tokio1", "wasm", "serde1"] }
 async-stream = "*"
 async-trait = "*"
 web-sys = {version="*", features=["console"]}
