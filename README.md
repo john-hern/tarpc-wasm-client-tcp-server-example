@@ -13,10 +13,18 @@ To build the client use: wasm-pack build --target web --out-name wasm --out-dir 
 
 Start the client server using miniserve: 
 
-miniserve ./static --index index.html --interfaces 0.0.0.0 --port 8083
+miniserve ./static --index index.html --interfaces 0.0.0.0 --port 8080
 
 Start the Server. 
 
 Click Connect. 
 
 Send pings, echos. 
+
+
+
+Global Dependencies: 
+Install the following global binaries via cargo install. 
+
+wasm-pack
+miniserve

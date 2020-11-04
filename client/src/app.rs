@@ -15,10 +15,13 @@ use wasm_bindgen_futures::spawn_local;
 //use wasm_timer::{Instant, SystemTime as WasmTime};
 use yew::prelude::*;
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
 pub struct Model {
     link: ComponentLink<Self>,
     value: i64,
-    connected: bool,
+    client: Rc<RefCell<Option<services::PingServiceClient>>>
 }
 
 pub enum Msg {
@@ -26,47 +29,54 @@ pub enum Msg {
     Connect,
     Ping,
     Echo,
+    Redraw,
 }
 
 impl Model {
     fn connect(&mut self) {
         info!("Attemping to connect");
-        spawn_local(Self::_connect());
-    }
-    async fn _connect() {
-        info!("Connecting");
-        info!("Testing thread_rnd");
-        let rng = &mut rand::thread_rng();
-        let next = rng.next_u32();
-        info!("Generated a random: {}", next);
-        let transport = build_client();
-        if let Ok(trans) = transport.await {
-            info!("Connected");
-            let config = tarpc::client::Config::default();
-            let client = services::PingServiceClient::new(config, trans);
-            let dispatch = client
-                .dispatch
-                .unwrap_or_else(move |e| error!("Connection broken: {}", e));
-            info!("Spawning Dispatch");
-            spawn_local(dispatch);
+        let client_ptr = self.client.clone();
+        let link = self.link.clone();
+        let fut = async move { 
+            info!("Connecting");
+            let transport = build_client();
+            if let Ok(trans) = transport.await {
+                info!("Connected");
+                let config = tarpc::client::Config::default();
+                let client = services::PingServiceClient::new(config, trans);
+                let dispatch = client
+                    .dispatch
+                    .unwrap_or_else(move |e| error!("Connection broken: {}", e));
+                info!("Spawning Dispatch");
+                spawn_local(dispatch);
+                //println!("Result:");
+    
+                client_ptr.replace(Some(client.client));
 
-            let mut client = client.client;
-            info!("Creating Context");
-            let cx = context::current();
-            info!("Sending Ping!");
-            let result = client.ping(cx).await.unwrap();
-            if let Ok(msg) = result {
-                info!("Ping success: {}", msg);
+                link.send_message(Msg::Redraw);
             }
-            let result = client.ping(cx).await.unwrap();
-            if let Ok(msg) = result {
-                info!("Ping success: {}", msg);
-            }
-            let result = client.ping(cx).await.unwrap();
-            if let Ok(msg) = result {
-                info!("Ping success: {}", msg);
-            }
-            //println!("Result:");
+        };
+        spawn_local(fut);
+    }
+    fn connected(&self) -> bool { 
+        if let Some(client) = self.client.borrow().as_ref() { 
+            return true;
+        }
+        false
+    }
+
+    fn ping(&self) { 
+        if self.connected(){ 
+            let client = self.client.clone();
+            let fut = async move { 
+                if let Some(ref mut client) = *client.borrow_mut() { 
+                    let result = client.ping(context::current()).await.unwrap();
+                    if let Ok(msg) = result {
+                        info!("Ping success: Results {}", msg);
+                    }
+                }
+            };
+            spawn_local(fut);
         }
     }
 }
@@ -78,7 +88,7 @@ impl Component for Model {
         Self {
             link,
             value: 0,
-            connected: false,
+            client: Rc::new(RefCell::new(None))
         }
     }
 
@@ -86,8 +96,9 @@ impl Component for Model {
         match msg {
             Msg::AddOne => self.value += 1,
             Msg::Connect => self.connect(),
-            Msg::Ping => (),
+            Msg::Ping => self.ping(),
             Msg::Echo => (),
+            Msg::Redraw => ()
         }
         true
     }
@@ -104,9 +115,10 @@ impl Component for Model {
             <div>
                 <button onclick=self.link.callback(|_| Msg::AddOne)>{ "+1" }</button>
                 <button onclick=self.link.callback(|_| Msg::Connect)>{ "Connect" }</button>
+                <button onclick=self.link.callback(|_| Msg::Ping)>{ "Ping" }</button>
                 <p>{ self.value }</p>
                 <div>{"Connected: "}{
-                    if self.connected {
+                    if self.connected() {
                         "True"
                     }else {
                         "False"
