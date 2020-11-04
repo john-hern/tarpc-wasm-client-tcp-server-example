@@ -1,31 +1,26 @@
-
 use crate::rpc_client::build_client;
 use ::rpc::services;
 
 use futures::prelude::*;
 use log::{error, info};
-use rand::RngCore;
 
-use tarpc::{
-    client, context,
-    server::{self, Channel, Handler},
-};
+use tarpc::context;
 
 use wasm_bindgen_futures::spawn_local;
 //use wasm_timer::{Instant, SystemTime as WasmTime};
 use yew::prelude::*;
 
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
-#[derive( Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Model {
     link: ComponentLink<Self>,
     value: i64,
     client: Rc<RefCell<Option<services::RPCServiceClient>>>,
     echo_value: String,
     echo_result: String,
-    connected: bool
+    connected: bool,
 }
 
 pub enum Msg {
@@ -44,7 +39,7 @@ impl Model {
         info!("Attemping to connect");
         let client_ptr = self.client.clone();
         let link = self.link.clone();
-        let fut = async move { 
+        let fut = async move {
             info!("Connecting");
             let transport = build_client();
             if let Ok(trans) = transport.await {
@@ -55,24 +50,24 @@ impl Model {
                     .dispatch
                     .unwrap_or_else(move |e| error!("Connection broken: {}", e));
                 info!("Spawning Dispatch");
-                
+
                 //Spawn the dispatch future
                 spawn_local(dispatch);
-                
-                //Store the client. 
+
+                //Store the client.
                 client_ptr.replace(Some(client.client));
 
-                //Force the dom view to refresh to update the Connected status. 
+                //Force the dom view to refresh to update the Connected status.
                 link.send_message(Msg::Connected);
             }
         };
         spawn_local(fut);
     }
-    fn ping(&self) { 
-        if self.connected{ 
+    fn ping(&self) {
+        if self.connected {
             let client = self.client.clone();
-            let fut = async move { 
-                if let Some(ref mut client) = *client.borrow_mut() { 
+            let fut = async move {
+                if let Some(ref mut client) = *client.borrow_mut() {
                     let result = client.ping(context::current()).await.unwrap();
                     if let Ok(msg) = result {
                         info!("Ping success: Results {}", msg);
@@ -83,13 +78,12 @@ impl Model {
         }
     }
 
-    fn echo(&self, value: String)
-    { 
-        if self.connected{ 
+    fn echo(&self, value: String) {
+        if self.connected {
             let client = self.client.clone();
             let link = self.link.clone();
-            let fut = async move { 
-                if let Some(ref mut client) = *client.borrow_mut() { 
+            let fut = async move {
+                if let Some(ref mut client) = *client.borrow_mut() {
                     let result = client.echo(context::current(), value).await.unwrap();
                     if let Ok(msg) = result {
                         info!("Echo Success: Results {}", msg);
@@ -112,7 +106,7 @@ impl Component for Model {
             client: Rc::new(RefCell::new(None)),
             echo_value: "".into(),
             echo_result: "Type string in input and press Echo".into(),
-            connected: false
+            connected: false,
         }
     }
 
@@ -127,8 +121,8 @@ impl Component for Model {
             Msg::UpdateEchoResult(result) => {
                 info!("Updating the echo result");
                 self.echo_result = result.clone();
-            },
-            Msg::Connected => self.connected = true
+            }
+            Msg::Connected => self.connected = true,
         }
         true
     }

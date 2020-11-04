@@ -1,22 +1,13 @@
-
-#![recursion_limit="256"]
-
+#![recursion_limit = "256"]
 
 pub mod app;
 pub mod loggin;
 pub mod rpc_client;
 
-
-
-
-
-use log::{info};
+use log::info;
 use loggin::LogWriter;
 
-
-
 use wasm_bindgen::prelude::*;
-
 
 use yew::prelude::*;
 

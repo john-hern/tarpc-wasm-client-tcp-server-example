@@ -1,27 +1,14 @@
-
 use async_io_stream::IoStream;
-
-
-
-use log::{error, info, warn};
-
+use log::info;
 use serde::{Deserialize, Serialize};
-
 use std::marker::Unpin;
-
-
-
-
 use tarpc::serde_transport::Transport;
-
 use tokio_serde::*;
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 use ws_stream_wasm::*;
 
-
-
 pub async fn connect<Item, SinkItem, Codec, CodecFn>(
-    codecFn: CodecFn,
+    codec_fn: CodecFn,
 ) -> Result<Transport<IoStream<WsStreamIo, Vec<u8>>, Item, SinkItem, Codec>, std::io::Error>
 where
     Item: for<'de> Deserialize<'de>,
@@ -38,7 +25,7 @@ where
             info!("Creating the frame");
             let frame = Framed::new(_wsio.into_io(), LengthDelimitedCodec::new());
             info!("Creating the Transport");
-            let tmp = tarpc::serde_transport::new(frame, codecFn());
+            let tmp = tarpc::serde_transport::new(frame, codec_fn());
             info!("Returning Transport");
             Ok(tmp)
         }

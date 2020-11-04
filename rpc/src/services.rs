@@ -1,6 +1,3 @@
-
-
-
 #[tarpc::service]
 pub trait RPCService {
     async fn ping() -> Result<String, String>;

@@ -1,30 +1,19 @@
 use async_stream::stream;
 use futures::Stream;
-use log::{error, info, warn};
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tarpc::serde_transport::Transport;
-
 use tokio::stream::StreamExt;
 use tokio_serde::*;
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 //use tarpc::Transport;
 use async_tungstenite::tokio::accept_async;
-
-
-
-
 use std::marker::Unpin;
-
-
-
-
-
-
 use ws_stream_tungstenite::*;
 
 pub async fn bind<Item, SinkItem, Codec, CodecFn>(
-    codecFn: CodecFn,
+    codec_fn: CodecFn,
 ) -> Option<
     impl Stream<
         Item = Result<
@@ -69,7 +58,7 @@ where
                     let ws_stream = WsStream::new(ws);
                     info!("New WebSocket connection: {}", addr);
                     let frame = Framed::new(ws_stream, LengthDelimitedCodec::new());
-                    let tmp = tarpc::serde_transport::new(frame, codecFn());
+                    let tmp = tarpc::serde_transport::new(frame, codec_fn());
                     yield Ok(tmp)
                 }
                 Err(_e) => { /* connection failed */ }

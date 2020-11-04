@@ -1,6 +1,6 @@
 use log::info;
 use rpc::services::RPCService;
-use tarpc::{context};
+use tarpc::context;
 
 #[derive(Clone)]
 pub struct RPCServiceImpl {}
@@ -15,5 +15,4 @@ impl RPCService for RPCServiceImpl {
         info!("Echo Called.. responding with {}!", value);
         Ok(value)
     }
-    
 }

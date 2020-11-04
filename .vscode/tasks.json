@@ -6,7 +6,7 @@
 			"problemMatcher": [
 				"$rustc"
 			],
-			"command": "cargo build",
+			"command": "cargo build -p server -p rpc",
 			"group": "build",
 			"label": "Rust: cargo build"
 		},
