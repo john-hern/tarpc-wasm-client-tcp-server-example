@@ -28,7 +28,6 @@ pin-project = "*"
 bytes = "*"
 wasm-bindgen-futures = "*"
 wasm-timer = {path="../../wasm-timer"}
-# wasm-timer = "*"
 ws_stream_wasm = {version = "0.6.1", features=["tokio_io"]}
 async_io_stream = "0.1"
 simple_logger = "*"
