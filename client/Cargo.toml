@@ -1,0 +1,36 @@
+[package]
+name = "client"
+version = "0.1.0"
+authors = ["John Hernandez <john.hern@outlook.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+yew = {version = "0.17"}
+wasm-bindgen = "0.2.67"
+tarpc = {path="../../tarpc/tarpc", features=["tokio1", "wasm", "serde1"]}
+async-stream = "*"
+async-trait = "*"
+web-sys = {version="*", features=["console"]}
+futures = "0.3.1"
+futures-util = "0.3.1"
+futures-sink = "0.3.1"
+serde = { version = "1.0"}
+anyhow = "*"
+tokio = {version="0.2", features=["rt-core", "io-util", "stream", "time"]}
+tokio-serde = { version = "0.6", features = ["json"] }
+tokio-util = { version = "0.3", features = ["codec"] }
+log = "*"
+pin-project = "*"
+bytes = "*"
+wasm-bindgen-futures = "*"
+wasm-timer = {path="../../wasm-timer"}
+# wasm-timer = "*"
+ws_stream_wasm = {version = "0.6.1", features=["tokio_io"]}
+async_io_stream = "0.1"
+simple_logger = "*"
+rand = {version = "0.7", features=["wasm-bindgen"]}
+rpc = {path="../rpc"}

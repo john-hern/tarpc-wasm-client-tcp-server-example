@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cargo",
+			"subcommand": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "Rust: cargo build - tarpc_wasm"
+		},
+		{
+			"type": "shell",
+			"command": "wasm-pack build --target web --out-name wasm --out-dir ./static --debug",
+			"group": "build",
+			"label": "Rust: wasm-pack - tarpc",
+			"options": {
+				"cwd": "${workspaceFolder}/client"
+			},
+			"problemMatcher": [
+				"$rustc"
+			]
+		}
+	]
+}
