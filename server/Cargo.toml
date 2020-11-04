@@ -1,0 +1,30 @@
+[package]
+name = "server"
+version = "0.1.0"
+authors = ["John Hernandez <john.hern@outlook.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0"}
+tarpc = {path="../../tarpc/tarpc", features=["full"]}
+pin-project = "*"
+async-stream = "*"
+async-trait = "*"
+tokio-serde = { version = "0.6", features = ["json"] }
+tokio-util = { version = "0.3", features = ["codec"] }
+tokio-tungstenite = "0.10.1"
+bytes = "0.5.6"
+tokio = {version="0.2", features=["full"]}
+futures = "0.3.1"
+futures-util = "0.3.1"
+futures-sink = "0.3.1"
+log = "*"
+uuid = { version = "0.7.2", features=["serde", "v4"] }
+serde_json = "1.0"
+anyhow = "*"
+simple_logger = "*"
+ws_stream_tungstenite = {version="0.3", features=["tokio_io"]}
+async-tungstenite  = {version = "0.8", features =["tokio-runtime"]}
+rpc = { path="../rpc" }
