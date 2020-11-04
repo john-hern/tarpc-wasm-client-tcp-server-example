@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 serde = { version = "1.0"}
 # tarpc = {path="../../tarpc/tarpc"}
-tarpc = {git = "https://github.com/john-hern/tarpc", branch = "wasm_support", features=["tokio1", "wasm", "serde1"] }
+tarpc = {git = "https://github.com/john-hern/tarpc", branch = "wasm_support"}
