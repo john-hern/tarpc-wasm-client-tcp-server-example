@@ -15,7 +15,7 @@ crate-type = ["cdylib", "rlib"]
 yew = {version = "0.17"}
 wasm-bindgen = "0.2.67"
 # tarpc = {path="../../tarpc/tarpc", features=["tokio1", "wasm", "serde1"]}
-tarpc = {git = "https://github.com/john-hern/tarpc.git", branch = "wasm_support", features=["tokio1", "wasm", "serde1"] }
+tarpc = {git = "https://github.com/john-hern/tarpc", branch = "wasm_support", features=["tokio1", "wasm", "serde1"] }
 async-stream = "*"
 async-trait = "*"
 web-sys = {version="*", features=["console"]}
@@ -31,7 +31,8 @@ log = "*"
 pin-project = "*"
 bytes = "*"
 wasm-bindgen-futures = "*"
-wasm-timer = {path="../../wasm-timer"}
+# wasm-timer = {path="../../wasm-timer"}
+wasm-timer = { git = "https://github.com/john-hern/wasm-timer", branch = "tokioShim" }
 ws_stream_wasm = {version = "0.6.1", features=["tokio_io"]}
 async_io_stream = "0.1"
 simple_logger = "*"
