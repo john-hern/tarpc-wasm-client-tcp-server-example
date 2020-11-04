@@ -2,21 +2,18 @@ pub mod app;
 pub mod loggin;
 pub mod rpc_client;
 
-use crate::rpc_client::build_client;
-use ::rpc::services;
-use ::tarpc::trace;
-use futures::prelude::*;
-use log::{error, info};
+
+
+
+
+use log::{info};
 use loggin::LogWriter;
-use rand::RngCore;
-use std::time::{Duration, UNIX_EPOCH};
-use tarpc::{
-    client, context,
-    server::{self, Channel, Handler},
-};
+
+
+
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
-use wasm_timer::{Instant, SystemTime as WasmTime};
+
+
 use yew::prelude::*;
 
 #[wasm_bindgen(start)]
