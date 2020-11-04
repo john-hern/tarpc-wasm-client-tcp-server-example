@@ -1,5 +1,5 @@
-use tarpc::{server, context};
 use tarpc::*;
+use tarpc::{context, server};
 
 #[tarpc::service]
 pub trait PingService {
@@ -7,7 +7,7 @@ pub trait PingService {
 }
 /*
 #[derive(Clone)]
-pub struct PingServiceImpl{ 
+pub struct PingServiceImpl{
 
 }
 #[tarpc::server]

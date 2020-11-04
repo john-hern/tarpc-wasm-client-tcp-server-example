@@ -1,5 +1,5 @@
-use web_sys::console::log_1;
 use wasm_bindgen::JsValue;
+use web_sys::console::log_1;
 
 //TODO: Implement a buffer if needed.
 pub struct LogWriter {

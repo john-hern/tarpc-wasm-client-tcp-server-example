@@ -1,56 +1,56 @@
-use ::server::web::bind;
-use ::rpc::services as services;
-use tokio::prelude::*;
-use tarpc;
-use serde::{Deserialize, Serialize};
-use std::pin::*;
-use services::PingService;
+use ::rpc::services;
+use ::server::loggin::LogWriter;
 use ::server::service_impl::PingServiceImpl;
-use tarpc::service;
-use tarpc::server::*;
-use tokio::stream::*;
-use futures_util::*;
+use ::server::web::bind;
 use futures_util::StreamExt;
+use futures_util::*;
+use log::info;
+use serde::{Deserialize, Serialize};
+use services::PingService;
+use std::pin::*;
+use tarpc;
 use tarpc::context::*;
 use tarpc::rpc::*;
+use tarpc::server::*;
+use tarpc::service;
 use tarpc::*;
-use log::{info};
-use ::server::loggin::LogWriter;
-
+use tokio::prelude::*;
+use tokio::stream::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let log_writer = LogWriter::new(log::Level::Info);
     if let Ok(()) = log::set_boxed_logger(Box::new(log_writer)) {
         log::set_max_level(log::LevelFilter::Info)
     }
     info!("First Message");
 
-    let server = build_server()
-    .await
-    .expect("Failed to get server channel");
+    let server = build_server().await.expect("Failed to get server channel");
     let stream = server.map_ok(move |x| {
-        info!("Mapping the client session"); 
+        info!("Mapping the client session");
         let channel = tarpc::server::BaseChannel::with_defaults(x);
-        let server = PingServiceImpl{}; 
+        let server = PingServiceImpl {};
         info!("Spawning client channel");
         tokio::spawn(channel.respond_with(server.serve()).execute())
     });
 
-    //TODO: Will likely need a way to kill the connection. Need to figure that out. 
+    //TODO: Will likely need a way to kill the connection. Need to figure that out.
     let handle = tokio::spawn(stream.for_each(|_| async {}));
     handle.await;
     Ok(())
 }
 
-async fn build_server<Item, SinkItem>() -> Option<impl Stream<Item = Result<impl tarpc::Transport<SinkItem, Item>, std::io::Error>>>
-    where
-        Item: for<'de> Deserialize<'de> + Unpin,
-        SinkItem: Serialize + Unpin,
-{ 
-    Some(bind(tokio_serde::formats::Json::<Item, SinkItem>::default).await.unwrap())
+async fn build_server<Item, SinkItem>(
+) -> Option<impl Stream<Item = Result<impl tarpc::Transport<SinkItem, Item>, std::io::Error>>>
+where
+    Item: for<'de> Deserialize<'de> + Unpin,
+    SinkItem: Serialize + Unpin,
+{
+    Some(
+        bind(tokio_serde::formats::Json::<Item, SinkItem>::default)
+            .await
+            .unwrap(),
+    )
 
     //self.server_handles.push(handle);
 }
-

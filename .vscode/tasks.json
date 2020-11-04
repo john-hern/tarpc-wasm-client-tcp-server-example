@@ -2,13 +2,13 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "cargo",
-			"subcommand": "build",
+			"type": "shell",
 			"problemMatcher": [
 				"$rustc"
 			],
+			"command": "cargo build -p server",
 			"group": "build",
-			"label": "Rust: cargo build - tarpc_wasm"
+			"label": "Rust: cargo build -p server"
 		},
 		{
 			"type": "shell",
