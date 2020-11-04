@@ -71,7 +71,6 @@ impl Model {
     fn ping(&self) { 
         if self.connected{ 
             let client = self.client.clone();
-            let link = self.link.clone();
             let fut = async move { 
                 if let Some(ref mut client) = *client.borrow_mut() { 
                     let result = client.ping(context::current()).await.unwrap();
@@ -89,19 +88,14 @@ impl Model {
         if self.connected{ 
             let client = self.client.clone();
             let link = self.link.clone();
-            let to_echo = self.echo_value.clone();
             let fut = async move { 
                 if let Some(ref mut client) = *client.borrow_mut() { 
-                    let result = client.echo(context::current(), to_echo).await.unwrap();
+                    let result = client.echo(context::current(), value).await.unwrap();
                     if let Ok(msg) = result {
                         info!("Echo Success: Results {}", msg);
-                        
-                        //Why is this blowing up?
-                        //link.send_message(Msg::UpdateEchoResult(msg.clone()));
-                        link.send_message(Msg::UpdateEchoResult(msg.clone()));
+                        link.send_message(Msg::UpdateEchoResult(msg));
                     }
                 }
-                
             };
             spawn_local(fut);
         }
