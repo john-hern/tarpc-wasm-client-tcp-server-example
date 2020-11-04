@@ -2,8 +2,9 @@
 
 
 #[tarpc::service]
-pub trait PingService {
+pub trait RPCService {
     async fn ping() -> Result<String, String>;
+    async fn echo(value: String) -> Result<String, String>;
 }
 /*
 #[derive(Clone)]

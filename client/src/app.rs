@@ -18,16 +18,23 @@ use yew::prelude::*;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+#[derive( Clone, Debug)]
 pub struct Model {
     link: ComponentLink<Self>,
     value: i64,
-    client: Rc<RefCell<Option<services::PingServiceClient>>>
+    client: Rc<RefCell<Option<services::RPCServiceClient>>>,
+    echo_value: String,
+    echo_result: String,
+    connected: bool
 }
 
 pub enum Msg {
     AddOne,
     Connect,
+    Connected,
     Ping,
+    UpdateEcho(String),
+    UpdateEchoResult(String),
     Echo,
     Redraw,
 }
@@ -43,31 +50,28 @@ impl Model {
             if let Ok(trans) = transport.await {
                 info!("Connected");
                 let config = tarpc::client::Config::default();
-                let client = services::PingServiceClient::new(config, trans);
+                let client = services::RPCServiceClient::new(config, trans);
                 let dispatch = client
                     .dispatch
                     .unwrap_or_else(move |e| error!("Connection broken: {}", e));
                 info!("Spawning Dispatch");
+                
+                //Spawn the dispatch future
                 spawn_local(dispatch);
-                //println!("Result:");
-    
+                
+                //Store the client. 
                 client_ptr.replace(Some(client.client));
 
-                link.send_message(Msg::Redraw);
+                //Force the dom view to refresh to update the Connected status. 
+                link.send_message(Msg::Connected);
             }
         };
         spawn_local(fut);
     }
-    fn connected(&self) -> bool { 
-        if let Some(client) = self.client.borrow().as_ref() { 
-            return true;
-        }
-        false
-    }
-
     fn ping(&self) { 
-        if self.connected(){ 
+        if self.connected{ 
             let client = self.client.clone();
+            let link = self.link.clone();
             let fut = async move { 
                 if let Some(ref mut client) = *client.borrow_mut() { 
                     let result = client.ping(context::current()).await.unwrap();
@@ -75,6 +79,29 @@ impl Model {
                         info!("Ping success: Results {}", msg);
                     }
                 }
+            };
+            spawn_local(fut);
+        }
+    }
+
+    fn echo(&self, value: String)
+    { 
+        if self.connected{ 
+            let client = self.client.clone();
+            let link = self.link.clone();
+            let to_echo = self.echo_value.clone();
+            let fut = async move { 
+                if let Some(ref mut client) = *client.borrow_mut() { 
+                    let result = client.echo(context::current(), to_echo).await.unwrap();
+                    if let Ok(msg) = result {
+                        info!("Echo Success: Results {}", msg);
+                        
+                        //Why is this blowing up?
+                        //link.send_message(Msg::UpdateEchoResult(msg.clone()));
+                        link.send_message(Msg::UpdateEchoResult(msg.clone()));
+                    }
+                }
+                
             };
             spawn_local(fut);
         }
@@ -88,7 +115,10 @@ impl Component for Model {
         Self {
             link,
             value: 0,
-            client: Rc::new(RefCell::new(None))
+            client: Rc::new(RefCell::new(None)),
+            echo_value: "".into(),
+            echo_result: "Type string in input and press Echo".into(),
+            connected: false
         }
     }
 
@@ -97,8 +127,14 @@ impl Component for Model {
             Msg::AddOne => self.value += 1,
             Msg::Connect => self.connect(),
             Msg::Ping => self.ping(),
-            Msg::Echo => (),
-            Msg::Redraw => ()
+            Msg::UpdateEcho(value) => self.echo_value = value,
+            Msg::Echo => self.echo(self.echo_value.clone()),
+            Msg::Redraw => (),
+            Msg::UpdateEchoResult(result) => {
+                info!("Updating the echo result");
+                self.echo_result = result.clone();
+            },
+            Msg::Connected => self.connected = true
         }
         true
     }
@@ -111,19 +147,32 @@ impl Component for Model {
     }
 
     fn view(&self) -> Html {
+        let echo_result = self.echo_result.clone();
         html! {
             <div>
                 <button onclick=self.link.callback(|_| Msg::AddOne)>{ "+1" }</button>
                 <button onclick=self.link.callback(|_| Msg::Connect)>{ "Connect" }</button>
                 <button onclick=self.link.callback(|_| Msg::Ping)>{ "Ping" }</button>
+                <div>
+                    <input
+                        type = "text"
+                        placeholder="Echo String"
+                        value=&self.echo_value
+                        oninput= self.link.callback(|e: InputData| Msg::UpdateEcho(e.value))
+                    />
+                    <button onclick=self.link.callback(|_| Msg::Echo)> { "Echo"} </button>
+                    <div>{"Echoed Result: "}{echo_result} </div>
+                </div>
                 <p>{ self.value }</p>
-                <div>{"Connected: "}{
-                    if self.connected() {
+                <div>
+                {"Connected: "}{
+                    if self.connected {
                         "True"
                     }else {
                         "False"
                     }
-                }</div>
+                }
+                </div>
             </div>
         }
     }

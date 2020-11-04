@@ -1,12 +1,12 @@
 use ::rpc::services;
 use ::server::loggin::LogWriter;
-use ::server::service_impl::PingServiceImpl;
+use ::server::service_impl::RPCServiceImpl;
 use ::server::web::bind;
 use futures_util::StreamExt;
 use futures_util::*;
 use log::info;
 use serde::{Deserialize, Serialize};
-use services::PingService;
+use services::RPCService;
 
 use tarpc;
 
@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stream = server.map_ok(move |x| {
         info!("Mapping the client session");
         let channel = tarpc::server::BaseChannel::with_defaults(x);
-        let server = PingServiceImpl {};
+        let server = RPCServiceImpl {};
         info!("Spawning client channel");
         tokio::spawn(channel.respond_with(server.serve()).execute())
     });

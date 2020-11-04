@@ -1,3 +1,7 @@
+
+#![recursion_limit="256"]
+
+
 pub mod app;
 pub mod loggin;
 pub mod rpc_client;
