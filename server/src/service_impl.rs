@@ -6,6 +6,7 @@ use tarpc::context;
 pub struct RPCServiceImpl {}
 
 #[tarpc::server]
+#[async_trait::async_trait]
 impl RPCService for RPCServiceImpl {
     async fn ping(self, _: context::Context) -> Result<String, String> {
         info!("Ping Called.. responding with Pong!");
